@@ -11,7 +11,6 @@ namespace MoneyManager.Controllers
         public ActionResult Index()
         {
             ViewBag.Message = "viewbag message";
-            ViewBag.Anything = "new key?";
             return View();
         }
 

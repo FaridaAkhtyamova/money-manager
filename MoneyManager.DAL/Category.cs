@@ -7,5 +7,6 @@ namespace MoneyManager.DAL
         public int CategoryID { get; set; }
         public string CategoryName { get; set; }
         public virtual ICollection<Record> Records { get; set; }
+        public bool IsExpense { get; set; }
     }
 }

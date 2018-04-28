@@ -8,15 +8,15 @@ using System.Web.Mvc;
 
 namespace MoneyManager.Models
 {
-    public class CreateRecordViewModel
+    public class CreateIncomeViewModel
     {
         public int RecordID { get; set; }
         [DisplayName("Was it spending?")]
-        public bool IsExpense { get; set; } = true;
+        public bool IsExpense { get; set; } = false;
         [DataType(DataType.Currency)]
         public decimal Sum { get; set; }
         [DisplayFormat(DataFormatString = "{0:dd-MM-yyyy}", ApplyFormatInEditMode = true)]
-        [Display(Name = "Spending Date")]
+        [Display(Name = "Income Date")]
         public DateTime SpendingDate { get; set; } = DateTime.Today.Date;
         public string Comment { get; set; }
         [DisplayName("Spending Category")]

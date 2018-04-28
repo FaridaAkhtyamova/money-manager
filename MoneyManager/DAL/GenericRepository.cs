@@ -76,5 +76,7 @@ namespace MoneyManager.DAL
             dbSet.Attach(entityToUpdate);
             context.Entry(entityToUpdate).State = EntityState.Modified;
         }
+
+      
     }
 }

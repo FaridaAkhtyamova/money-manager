@@ -10,7 +10,6 @@ namespace MoneyManager.Controllers
     public class CategoriesController : Controller
     {
         private UnitOfWork db = new UnitOfWork();
-        //private MoneyManagerContext db = new MoneyManagerContext();
 
         // GET: Categories
         public ActionResult Index()

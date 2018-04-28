@@ -6,23 +6,13 @@ using System.Web.Mvc;
 using MoneyManager.Models;
 using MoneyManager.DAL;
 using System;
+using System.Collections.Generic;
 
 namespace MoneyManager.Controllers
 {
     public class RecordsController : Controller
     {
-        //private IRecordRepository _recordRepository;
         private UnitOfWork db = new UnitOfWork();
-
-        //public RecordsController()
-        //{
-        //    _recordRepository = new RecordRepository(new MoneyManagerContext());
-        //}
-
-        //public RecordsController(IRecordRepository recordRepository)
-        //{
-        //    _recordRepository = recordRepository;
-        //}
 
         // GET: Records
         public ActionResult Index()
@@ -49,7 +39,27 @@ namespace MoneyManager.Controllers
         public ActionResult Create()
         {
             var newRecord = new CreateRecordViewModel();
-            newRecord.Categories = db.CategoryRepository.Get().ToList();
+            //GenerateCategories(newRecord);
+            //newRecord.Categories = db.CategoryRepository.Get().ToList();
+            return View(newRecord);
+        }
+
+        // GET: Records/CreateExpense
+        public ActionResult CreateExpense()
+        {
+            var newRecord = new CreateRecordViewModel();
+            newRecord.Categories = GenerateCategories();
+            //newRecord.Categories = db.CategoryRepository.Get().ToList();
+            return View(newRecord);
+        }
+
+        // GET: Records/CreateIncome
+        public ActionResult CreateIncome()
+        {
+            var newRecord = new CreateIncomeViewModel();
+            newRecord.Categories = GenerateCategories();
+            //GenerateCategories(newRecord);
+            //newRecord.Categories = db.CategoryRepository.Get().ToList();
             return View(newRecord);
         }
 
@@ -58,45 +68,76 @@ namespace MoneyManager.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create(CreateRecordViewModel record)
+        public ActionResult Create([Bind(Include = "RecordID, IsExpense,SpendingDate,Comment,Sum, SelectedCategoryID")]CreateRecordViewModel record)
         {
-            if (ModelState.IsValid)
+            //[Bind(Include = "RecordID, IsExpense,SpendingDate,Comment,Sum")] 
+            try
             {
-                var addRecord = new Record() { IsExpense = record.IsExpense, SpendingDate = record.SpendingDate, Comment = record.Comment, Sum = record.Sum };
-                //addRecord.CategoryID = record.SelectedCategoryID;
-
-                addRecord.Category = db.CategoryRepository.GetByID(Int32.Parse(record.SelectedCategoryID));
-                //addRecord.CategoryID = _recordRepository.Categories.Where(c => c.CategoryName == record.SelectedCategory).First().CategoryID;
-                db.RecordRepository.Insert(addRecord);
-                //.Records.Add(addRecord);
-                db.Save();
-                //.SaveChanges();
-                return RedirectToAction("Index");
+                if (ModelState.IsValid)
+                {
+                    var addRecord = new Record() { IsExpense = record.IsExpense, SpendingDate = record.SpendingDate, Comment = record.Comment, Sum = record.Sum };
+                    addRecord.Category = db.CategoryRepository.GetByID(int.Parse(record.SelectedCategoryID));
+                    db.RecordRepository.Insert(addRecord);
+                    db.Save();
+                    return RedirectToAction("Index");
+                }
             }
-            //try
-            //{
-            //    if (ModelState.IsValid)
-            //    {
-            //        var addRecord = new Record() { IsExpense = record.IsExpense, SpendingDate = record.SpendingDate, Comment = record.Comment, Sum = record.Sum };
-            //        //addRecord.CategoryID = record.SelectedCategoryID;
-                    
-            //        addRecord.Category = db.CategoryRepository.GetByID(Int32.Parse(record.SelectedCategoryID));
-            //        //addRecord.CategoryID = _recordRepository.Categories.Where(c => c.CategoryName == record.SelectedCategory).First().CategoryID;
-            //        db.RecordRepository.Insert(addRecord);
-            //        //.Records.Add(addRecord);
-            //        db.Save();
-            //        //.SaveChanges();
-            //        return RedirectToAction("Index");
-            //    }
-            //}
-            //catch (DataException dex)
-            //{
-            //    ModelState.AddModelError("", "Unable to save changes. Try again, and if the problem persists, see your system administrator.");
-            //}
-            //PopulateCategoriesDropDown(record.SelectedCategoryID);
 
+            catch (DataException dex)
+            {
+                ModelState.AddModelError("", "Unable to save changes. Try again, and if the problem persists, see your system administrator.");
+            }
             return View(record);
         }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult CreateIncome([Bind(Include = "RecordID, IsExpense,SpendingDate,Comment,Sum, SelectedCategoryID")]CreateIncomeViewModel record)
+        {
+            //[Bind(Include = "RecordID, IsExpense,SpendingDate,Comment,Sum")] 
+            try
+            {
+                if (ModelState.IsValid)
+                {
+                    var addRecord = new Record() { IsExpense = record.IsExpense, SpendingDate = record.SpendingDate, Comment = record.Comment, Sum = record.Sum };
+                    addRecord.Category = db.CategoryRepository.GetByID(int.Parse(record.SelectedCategoryID));
+                    db.RecordRepository.Insert(addRecord);
+                    db.Save();
+                    return RedirectToAction("Index");
+                }
+            }
+
+            catch (DataException dex)
+            {
+                ModelState.AddModelError("", "Unable to save changes. Try again, and if the problem persists, see your system administrator.");
+            }
+            return View(record);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult CreateExpense([Bind(Include = "RecordID, IsExpense,SpendingDate,Comment,Sum, SelectedCategoryID")]CreateRecordViewModel record)
+        {
+            //[Bind(Include = "RecordID, IsExpense,SpendingDate,Comment,Sum")] 
+            try
+            {
+                if (ModelState.IsValid)
+                {
+                    var addRecord = new Record() { IsExpense = record.IsExpense, SpendingDate = record.SpendingDate, Comment = record.Comment, Sum = record.Sum };
+                    addRecord.Category = db.CategoryRepository.GetByID(int.Parse(record.SelectedCategoryID));
+                    db.RecordRepository.Insert(addRecord);
+                    db.Save();
+                    return RedirectToAction("Index");
+                }
+            }
+
+            catch (DataException dex)
+            {
+                ModelState.AddModelError("", "Unable to save changes. Try again, and if the problem persists, see your system administrator.");
+            }
+            return View(record);
+        }
+
 
         // GET: Records/Edit/5
         public ActionResult Edit(int? id)
@@ -106,12 +147,20 @@ namespace MoneyManager.Controllers
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
             Record record = db.RecordRepository.GetByID(id);
+            CreateRecordViewModel modelRecord = new CreateRecordViewModel() { RecordID = record.RecordID, IsExpense = record.IsExpense, SpendingDate = record.SpendingDate, Comment = record.Comment, Sum = record.Sum };
+            modelRecord.SelectedCategoryID = record.Category.CategoryName;
+            modelRecord.Categories = GenerateCategories();
+
             if (record == null)
             {
                 return HttpNotFound();
             }
-            //PopulateCategoriesDropDown(record.CategoryID);
-            return View(record);
+            return View(modelRecord);
+        }
+
+        private List<Category> GenerateCategories()
+        {
+            return db.CategoryRepository.Get().ToList();
         }
 
         // POST: Records/Edit/5
@@ -119,14 +168,16 @@ namespace MoneyManager.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit([Bind(Include = "RecordID,IsExpense,Sum,SpendingDate,Comment,CategoryID")] Record record)
+        public ActionResult Edit([Bind(Include = "RecordID, IsExpense,SpendingDate,Comment,Sum, SelectedCategoryID")]CreateRecordViewModel record)
         {
-            try
+           try
             {
                 if (ModelState.IsValid)
                 {
-                    db.RecordRepository.Update(record);
-                    //.Entry(record).State = EntityState.Modified;
+                    var updateRecord = new Record() { RecordID = record.RecordID, IsExpense = record.IsExpense, SpendingDate = record.SpendingDate, Comment = record.Comment, Sum = record.Sum };
+                    //var categoryID = db.CategoryRepository.GetByID(int.Parse(record.SelectedCategoryID)).CategoryID;
+                    updateRecord.Category = db.CategoryRepository.GetByID(int.Parse(record.SelectedCategoryID));
+                    db.RecordRepository.Update(updateRecord);
                     db.Save();
                     return RedirectToAction("Index");
                 }
@@ -136,12 +187,6 @@ namespace MoneyManager.Controllers
                 ModelState.AddModelError("", "Unable to save changes. Try again, and if the problem persists, see your system administrator.");
             }
             return View(record);
-        }
-
-        private void PopulateCategoriesDropDown(object selectedCategory = null)
-        {
-            //var categoriesQuery = from c in _recordRepository
-            //ViewBag.CategoryID = new SelectList(categoriesQuery, "CategoryID", "Name", selectedCategory);
         }
 
         // GET: Records/Delete/5
